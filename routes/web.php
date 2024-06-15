@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Admin\HomeController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\UndanganController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,16 +21,27 @@ use Illuminate\Support\Facades\Route;
 
 // Route for accessing the wedding invitation page without login
 
-
 // Default route
 Route::view('/', 'welcome');
 
-// Dashboard routes
-Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard', 'as' => 'admin.'], function () {
+// Dashboard routes for admin
+Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/', HomeController::class)->name('home');
-    Route::get('/tambah-pengantin', [HomeController::class, 'createpengantin'])->name('createpengantin');
-    Route::get('/undangan', [UndanganController::class, 'index'])->name('indexpengantin');
-   
+    Route::get('/admin/home', [HomeController::class, 'index'])->name('admin.home');
+    Route::get('/admin/settings/kantor', [AdminController::class, 'settingsKantor'])->name('kantor');
+    Route::put('/admin/settings/kantor', [AdminController::class, 'updateAllKantor'])->name('update-all-kantor');
+
+    Route::get('/admin/aproval-cuti', [AdminController::class, 'indexcuti'])->name('indexcuti');
+    Route::put('/cuti/approve-cuti/{id}', [AdminController::class, 'approve'])->name('cuti.approve');
+    Route::put('/admin/cuti/reject/{id}', [AdminController::class, 'reject'])->name('cuti.reject');
+
+    Route::get('/admin/aproval-izin', [AdminController::class, 'indexizin'])->name('indexizin');
+    Route::put('/cuti/approve-izin/{id}', [AdminController::class, 'approveizin'])->name('cuti.approveizin');
+    Route::put('/admin/izin/reject/{id}', [AdminController::class, 'rejectizin'])->name('cuti.rejectizin');
+  
+    Route::get('/generate-absensi-report', [AdminController::class, 'generateAbsensiReportForm'])->name('absensi.report.form');
+    Route::post('/generate-absensi-report', [AdminController::class, 'generateAbsensiReport'])->name('absensi.report.generate');
+    Route::get('/export-attendance', [AbsensiController::class, 'exportAttendance'])->name('export.attendance');
 
     // Links that return views, to get components from there
     Route::view('/buttons', 'admin.buttons')->name('buttons');
@@ -38,7 +53,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard', 'as' => 'admin.
 
     Route::group(['prefix' => 'pages', 'as' => 'page.'], function () {
         // Route for managing undangan resource
-        Route::resource('undangans', UndanganController::class);
+     
         
         // Other routes
         Route::view('/404-page', 'admin.pages.404')->name('404');
@@ -49,8 +64,32 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard', 'as' => 'admin.
     });
 });
 
+// User routes
+Route::group(['middleware' => ['auth','user'], 'prefix' => 'dashboard', 'as' => 'user.'], function () {
+    Route::get('/user/home', [UserController::class, 'index'])
+        ->middleware(['auth', 'user'])
+        ->name('user.home');
+    Route::get('/', [UserController::class, 'index'])->name('home');
+    Route::get('/absensi/print/{year}/{month}', [UserController::class, 'printPDF'])->name('printPDF');
+    Route::get('/my-timestamp', [UserController::class, 'timestamp'])->name('timestamp');
 
-Route::get('{nama_pengantin_pria}/{nama_pengantin_wanita}', [UndanganController::class, 'show'])->name('show');
-Route::get('/{nama_pengantin_pria}/{nama_pengantin_wanita}', [UndanganController::class, 'indexPublic'])->name('undangan.index.public');
+    Route::get('/my-leave', [UserController::class, 'leave'])->name('leave');
+    Route::get('/create-leave', [UserController::class, 'Createleave'])->name('Createleave');
+    Route::post('/leave/store', [UserController::class, 'StoreCuti'])->name('StoreCuti');
+
+    Route::get('/izin', [UserController::class, 'izin'])->name('izin');
+    Route::get('/create-izin', [UserController::class, 'Createizin'])->name('Createizin');
+    Route::post('/izin/store', [UserController::class, 'Storeizin'])->name('Storeizin');
+
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('/settings', [UserController::class, 'settings'])->name('settings');
+    Route::post('/submit-absen', [AbsensiController::class, 'submitAbsen'])->name('submit.absen');
+});
+
+// Logout route
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
+
 // Authentication routes
 require __DIR__ . '/auth.php';

@@ -1,5 +1,7 @@
 <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-    <div
+    
+<div
+
             class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
     >
         <!-- Mobile hamburger -->
@@ -22,7 +24,7 @@
             </svg>
         </button>
         <!-- Search input -->
-        <div class="flex justify-center flex-1 lg:mr-32">
+        <!-- <div class="flex justify-center flex-1 lg:mr-32">
             <div
                     class="relative w-full max-w-xl mr-6 focus-within:text-purple-500"
             >
@@ -47,7 +49,8 @@
                         aria-label="Search"
                 />
             </div>
-        </div>
+        </div> -->
+        <br>
         <ul class="flex items-center flex-shrink-0 space-x-6">
             <!-- Theme toggler -->
             <li class="flex">
@@ -84,7 +87,13 @@
                     </template>
                 </button>
             </li>
-            <!-- Notifications menu -->
+                        <li class="relative">
+                            <!-- Nama Pengguna -->
+                            <span class="text-sm font-semibold">{{ auth()->user()->name_lengkap }}</span>
+
+                        </li>
+                   
+            <!-- Notifications menu
             <li class="relative">
                 <button
                         class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple"
@@ -103,8 +112,8 @@
                                 d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
                         ></path>
                     </svg>
-                    <!-- Notification badge -->
-                    <span
+                    Notification badge -->
+                    <!-- <span
                             aria-hidden="true"
                             class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-red-600 border-2 border-white rounded-full dark:border-gray-800"
                     ></span>
@@ -154,7 +163,7 @@
                         </li>
                     </ul>
                 </template>
-            </li>
+            </li> -->
             <!-- Profile menu -->
             <li class="relative">
                 <button

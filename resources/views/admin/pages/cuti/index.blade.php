@@ -1,0 +1,114 @@
+@extends('layouts.admin')
+@section('content')
+@php
+  use Carbon\Carbon;
+@endphp
+<div class="container px-6 mx-auto grid">
+  <br>
+  <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Menunggu Approve Cuti</h2>
+  <div class="w-full overflow-hidden rounded-lg shadow-xs mt-4">
+    <div class="w-full overflow-x-auto">
+      <table class="w-full whitespace-no-wrap">
+        <thead>
+          <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Nama</th>
+            <th class="px-4 py-3">Tanggal Cuti</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Approve Cuti</th>
+            <th class="px-4 py-3">Tolak Cuti</th> <!-- Tambahkan kolom untuk checkbox tolak cuti -->
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+          @foreach ($cutiRequests as $request)
+          <tr class="text-gray-700 dark:text-gray-400">
+          <td class="px-4 py-3">{{ $loop->iteration }}</td>
+            <td class="px-4 py-3 text-sm">{{ $request->user->name_lengkap }}</td>
+            <td class="px-4 py-3 text-sm">{{ Carbon::parse($request->tgl_presensi)->translatedFormat('l, d F Y') }}</td>
+            <td class="px-4 py-3 text-xs">
+              <span class="px-2 py-1 font-semibold leading-tight {{ $request->status == 'Approved' ? 'text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100' : ($request->status == 'Menunggu Approve Cuti' ? 'text-orange-700 bg-orange-100 rounded-full dark:text-white dark:bg-orange-600' : ($request->status == 'Cuti Di Tolak' ? 'text-red-700 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-700' : 'text-gray-700 bg-gray-100 rounded-full dark:text-gray-100 dark:bg-gray-700')) }}">
+                {{ $request->status }}
+              </span>
+            </td>
+           
+            <td class="px-4 py-3 text-sm">
+              <form action="{{ route('admin.cuti.approve', $request->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="checkbox" name="approve_cuti" onchange="this.form.submit()">
+              </form>
+            </td>
+            <td class="px-4 py-3 text-sm">
+              <form action="{{ route('admin.cuti.reject', $request->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="checkbox" name="reject_cuti" onchange="this.form.submit()">
+              </form>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+    <div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+      <span class="flex items-center col-span-3">
+        Showing {{ $cutiRequests->firstItem() }}-{{ $cutiRequests->lastItem() }} of {{ $cutiRequests->total() }}
+      </span>
+      <span class="col-span-2"></span>
+      <!-- Pagination -->
+      <span class="flex col-span-4 mt-2 sm:mt-auto sm:justify-end">
+        {{ $cutiRequests->links() }}
+      </span>
+    </div>
+  </div>
+</div>
+
+<br>
+<br>
+
+<div class="container px-6 mx-auto grid">
+  <br>
+  <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">History Approve Cuti</h2>
+  <div class="w-full overflow-hidden rounded-lg shadow-xs mt-4">
+    <div class="w-full overflow-x-auto">
+      <table class="w-full whitespace-no-wrap">
+        <thead>
+          <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+            <th class="px-4 py-3">NO</th>
+            <th class="px-4 py-3">Nama</th>
+            <th class="px-4 py-3">Tanggal Cuti</th>
+            <th class="px-4 py-3">Status</th>
+           
+           
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+          @foreach ($cutiRequests1 as $request)
+          <tr class="text-gray-700 dark:text-gray-400">
+            <td class="px-4 py-3">{{ $loop->iteration }}</td>
+            <td class="px-4 py-3 text-sm">{{ $request->user->name_lengkap }}</td>
+            <td class="px-4 py-3 text-sm">{{ Carbon::parse($request->tgl_presensi)->translatedFormat('l, d F Y') }}</td>
+            <td class="px-4 py-3 text-xs">
+              <span class="px-2 py-1 font-semibold leading-tight {{ $request->status == 'Cuti' ? 'text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100' : ($request->status == 'Pending' ? 'text-orange-700 bg-orange-100 rounded-full dark:text-white dark:bg-orange-600' : ($request->status == 'Cuti Di Tolak' ? 'text-red-700 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-700' : 'text-gray-700 bg-gray-100 rounded-full dark:text-gray-100 dark:bg-gray-700')) }}">
+                {{ $request->status }}
+              </span>
+            </td>
+         
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+    <div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+      <span class="flex items-center col-span-3">
+        Showing {{ $cutiRequests1->firstItem() }}-{{ $cutiRequests1->lastItem() }} of {{ $cutiRequests1->total() }}
+      </span>
+      <span class="col-span-2"></span>
+      <!-- Pagination -->
+      <span class="flex col-span-4 mt-2 sm:mt-auto sm:justify-end">
+        {{ $cutiRequests1->links() }}
+      </span>
+    </div>
+  </div>
+</div>
+@endsection

@@ -21,6 +21,7 @@ class CreateAbsensiTable extends Migration
             $table->time('jam_keluar')->nullable();
             $table->string('status')->default('Belum Absen');
             $table->string('reason')->nullable();
+            $table->string('surat_izin')->nullable();
             $table->timestamps();
 
             $table->unsignedBigInteger('user_id');

@@ -15,6 +15,7 @@ class Absensi extends Model
         'jam_masuk',
         'jam_pulang',
         'reason',
+        'surat_izin',
     ];
     public function user()
     {

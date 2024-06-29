@@ -52,7 +52,7 @@ class AbsensiController extends Controller
         $start_time = strtotime("08:45:00");
         // Check if the user is late
         $late_time = strtotime("09:15:00");
-        $end_time = strtotime("17:00:00"); // 05:00 sore
+        $end_time = strtotime("24:00:00"); // 05:00 sore
         $current_time = strtotime($jam);
         
         $update = [
@@ -200,8 +200,26 @@ class AbsensiController extends Controller
     $writer->save($fileName);
 
     return response()->download($fileName)->deleteFileAfterSend(true);
+
+    
 }
 
+public function downloadPDF($id)
+{
+    $absensi = Absensi::findOrFail($id);
+
+    // Pastikan file surat izin ada dan dapat diakses
+    if (!empty($absensi->surat_izin)) {
+        $file = storage_path('app/public/surat_izin/' . $absensi->surat_izin);
+
+        if (file_exists($file)) {
+            return response()->download($file);
+        }
+    }
+
+    // Jika file tidak ditemukan atau tidak ada
+    return redirect()->back()->with('error', 'File tidak tersedia untuk diunduh.');
+}
 
 
 

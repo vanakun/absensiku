@@ -38,10 +38,16 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin', 'as' => 'a
     Route::get('/admin/aproval-izin', [AdminController::class, 'indexizin'])->name('indexizin');
     Route::put('/cuti/approve-izin/{id}', [AdminController::class, 'approveizin'])->name('cuti.approveizin');
     Route::put('/admin/izin/reject/{id}', [AdminController::class, 'rejectizin'])->name('cuti.rejectizin');
+
+    Route::get('/admin/aproval-misspunch', [AdminController::class, 'indexmisspunch'])->name('indexmisspunch');
+    Route::put('/cuti/approve-misspunch/{id}', [AdminController::class, 'approvemisspunch'])->name('cuti.approvemisspunch');
+    Route::put('/admin/misspunch/reject/{id}', [AdminController::class, 'rejectmisspunch'])->name('cuti.rejectmisspunch');
   
     Route::get('/generate-absensi-report', [AdminController::class, 'generateAbsensiReportForm'])->name('absensi.report.form');
     Route::post('/generate-absensi-report', [AdminController::class, 'generateAbsensiReport'])->name('absensi.report.generate');
     Route::get('/export-attendance', [AbsensiController::class, 'exportAttendance'])->name('export.attendance');
+
+    Route::get('absensi/download/{id}', [AbsensiController::class, 'downloadPDF'])->name('user.download');
 
     // Links that return views, to get components from there
     Route::view('/buttons', 'admin.buttons')->name('buttons');
@@ -81,15 +87,22 @@ Route::group(['middleware' => ['auth','user'], 'prefix' => 'dashboard', 'as' => 
     Route::get('/create-izin', [UserController::class, 'Createizin'])->name('Createizin');
     Route::post('/izin/store', [UserController::class, 'Storeizin'])->name('Storeizin');
 
+    Route::get('/misspunch', [UserController::class, 'misspunch'])->name('misspunch');
+    Route::get('/create-misspunch', [UserController::class, 'Createmisspunch'])->name('Createmisspunch');
+    Route::put('/misspunch/store', [UserController::class, 'updateStatus'])->name('updateStatus');
+
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::get('/settings', [UserController::class, 'settings'])->name('settings');
     Route::post('/submit-absen', [AbsensiController::class, 'submitAbsen'])->name('submit.absen');
+    Route::get('absensi/download/{id}', [AbsensiController::class, 'downloadPDF'])->name('user.download');
 });
+
 
 // Logout route
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
+    Route::get('absensi/download/{id}', [AbsensiController::class, 'downloadPDF'])->name('user.download');
 // Authentication routes
 require __DIR__ . '/auth.php';

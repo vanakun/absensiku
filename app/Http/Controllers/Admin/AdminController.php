@@ -136,6 +136,40 @@ return view('admin.pages.cuti.index', compact('cutiRequests1', 'cutiRequests'));
             $totalIzin = $absensi->where('status', 'izin')->count();
             return view('admin.pages.laporan.cetakpdf', compact('absensi', 'totalTerlambat', 'totalCuti', 'totalIzin', 'totalTepatWaktu'));
         }
+
+        public function indexmisspunch()
+        {
+            // Fetch all records where status is 'Menunggu Approve Izin', ordered by the latest
+            $izinRequest = Absensi::where('status', 'misspunch request')
+                                  ->orderBy('created_at', 'desc')
+                                  ->paginate(5);
+        
+            // Fetch all records where status is 'Izin', ordered by the latest
+            $izinRequest1 = Absensi::wherein('status', ['misspunch approved', 'misspunch rejected'])
+                                   ->orderBy('created_at', 'desc')
+                                   ->paginate(5);
+            
+                                  // dd($izinRequest1);
+            // Return the view with the fetched data
+            return view('admin.pages.misspunch.index', compact('izinRequest1', 'izinRequest'));
+        }
+        
+        public function approvemisspunch($id)
+        {
+            $izinRequest = Absensi::findOrFail($id);
+            $izinRequest->status = 'misspunch approved';
+            $izinRequest->save();
+
+            return redirect()->back()->with('success', 'Cuti request approved successfully.');
+        }
+
+        public function rejectmisspunch($id)
+        {
+        $cuti = Absensi::findOrFail($id);
+        $cuti->update(['status' => 'misspunch rejected']);
+        return redirect()->back()->with('success', 'Cuti berhasil ditolak.');
+        }
+
         
 
         public function generateAbsensiReportForm()

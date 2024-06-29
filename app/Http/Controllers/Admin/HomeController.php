@@ -23,7 +23,7 @@ class HomeController extends Controller
         $totalIzinMenungguApprove = Absensi::where('status', 'Menunggu Approve Izin')->count();
 
             $totalAbsenHariIni = Absensi::whereDate('tgl_presensi', Carbon::today())
-            ->whereNotIn('status', ['Menunggu Approve Izin', 'Menunggu Approve Cuti', 'Cuti', 'Izin'])
+            ->whereNotIn('status', ['Menunggu Approve Izin', 'Menunggu Approve Cuti', 'Cuti', 'Izin',])
             ->count();
 
             $absenHariIni = Absensi::whereDate('tgl_presensi', Carbon::today())

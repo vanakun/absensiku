@@ -1,6 +1,5 @@
 @extends('layouts.user')
 @section('content')
-<!-- Remove everything INSIDE this div to a really blank page -->
 <div class="container px-6 mx-auto grid">
     <br>
     <div class="flex justify-right">
@@ -8,30 +7,36 @@
     </div>
 
     <div class="container mx-auto px-4">
-    <div class="overflow-x-auto">
-        <div class="p-4 shadow-md rounded my-6">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm">
-                        <th class="px-6 py-3 text-left">Tanggal izin</th>
-                        <th class="px-6 py-3 text-left">Status</th>
-                        <th class="px-6 py-3 text-left">Reason</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-600 dark:text-gray-300 text-sm font-light divide-y divide-gray-200">
-                    @foreach($absensis as $absen)
-                    <tr class="hover:bg-white-300">
-                        <td class="px-6 py-4 whitespace-nowrap ">{{ $absen->tgl_presensi }}</td>
-                        <td class="px-6 py-4">{{ $absen->status }}</td>
-                        <td class="px-6 py-4">{{ $absen->reason }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="overflow-x-auto">
+            <div class="p-4 shadow-md rounded my-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm">
+                            <th class="px-6 py-3 text-left">Tanggal izin</th>
+                            <th class="px-6 py-3 text-left">Status</th>
+                            <th class="px-6 py-3 text-left">Reason</th>
+                            <th class="px-6 py-3 text-left">Aksi</th> <!-- Kolom untuk tautan unduh PDF -->
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 dark:text-gray-300 text-sm font-light divide-y divide-gray-200">
+                        @foreach($absensis as $absen)
+                        <tr class="hover:bg-white-300">
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $absen->tgl_presensi }}</td>
+                            <td class="px-6 py-4">{{ $absen->status }}</td>
+                            <td class="px-6 py-4">{{ $absen->reason }}</td>
+                            <td class="px-6 py-4">
+                                @if (!empty($absen->surat_izin))
+                                    <a href="{{ route('user.download', $absen->id) }}" class="text-blue-500 hover:text-blue-600">Unduh Surat Izin</a>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+           
+            <br>
         </div>
-       
-        <br>
     </div>
-</div>
 </div>
 @endsection

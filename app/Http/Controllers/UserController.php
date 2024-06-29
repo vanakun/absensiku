@@ -43,7 +43,7 @@ class UserController extends Controller
                         ->whereYear('tgl_presensi', $year)
                         ->whereMonth('tgl_presensi', $month)
                         ->where('user_id', auth()->user()->id)
-                        ->whereIn('status', ['terlambat', 'tepat_waktu'])
+                        ->whereIn('status', ['terlambat', 'tepat_waktu','Belum Absen'])
                         ->orderBy('tgl_presensi', 'desc') // Urutkan dari yang paling lama
                         ->paginate(5);
 
@@ -166,37 +166,86 @@ public function printPDF()
         return view('user.myizin',compact('absensis'));
     }
 
-    public function Storeizin(Request $request)
-    {
-        $request->validate([
-            'tgl_presensi' => 'required|date',
-            'lokasi_absen' => 'nullable|string',
-            'reason' => 'nullable|string',
-            'jam_masuk' => 'nullable|date_format:H:i',
-            'jam_keluar' => 'nullable|date_format:H:i|after:jam_masuk',
-        ]);
-    
-        // Memeriksa apakah tanggal presensi sudah ada
-        $existingAbsensi = Absensi::where('tgl_presensi', $request->tgl_presensi)
-                                    ->where('user_id', auth()->id())
-                                    ->exists();
-    
-        if ($existingAbsensi) {
-            return redirect()->back()->with('error', 'Absensi untuk tanggal tersebut sudah ada.');
-        }
-    
-        $absensi = new Absensi();
-        $absensi->tgl_presensi = $request->tgl_presensi;
-        $absensi->lokasi_absen = $request->lokasi_absen;
-        $absensi->reason = $request->reason;
-        $absensi->jam_masuk = $request->jam_masuk;
-        $absensi->jam_keluar = $request->jam_keluar;
-        $absensi->status = 'Menunggu Approve Izin'; // Default status
-        $absensi->user_id = auth()->id(); // Assuming you have authentication
-    
-        $absensi->save();
-    
-        return redirect()->route('user.leave')->with('success', 'Absensi berhasil disimpan.');
+    public function storeIzin(Request $request)
+{
+    $request->validate([
+        'tgl_presensi' => 'required|date',
+        'lokasi_absen' => 'nullable|string',
+        'reason' => 'nullable|string',
+        'jam_masuk' => 'nullable|date_format:H:i',
+        'jam_keluar' => 'nullable|date_format:H:i|after:jam_masuk',
+        'surat_izin' => 'nullable|file|mimes:pdf|max:10240',
+    ]);
+
+    // Memeriksa apakah tanggal presensi sudah ada
+    $existingAbsensi = Absensi::where('tgl_presensi', $request->tgl_presensi)
+                                ->where('user_id', auth()->id())
+                                ->exists();
+
+    if ($existingAbsensi) {
+        return redirect()->back()->with('error', 'Absensi untuk tanggal tersebut sudah ada.');
     }
 
+    $absensi = new Absensi();
+    $absensi->tgl_presensi = $request->tgl_presensi;
+    $absensi->lokasi_absen = $request->lokasi_absen;
+    $absensi->reason = $request->reason;
+    $absensi->jam_masuk = $request->jam_masuk;
+    $absensi->jam_keluar = $request->jam_keluar;
+    $absensi->status = 'Menunggu Approve Izin'; // Default status
+    $absensi->user_id = auth()->id(); // Assuming you have authentication
+
+    // Mengelola file surat izin
+    if ($request->hasFile('surat_izin')) {
+        $file = $request->file('surat_izin');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $file->storeAs('public/surat_izin', $fileName); // Simpan file di storage 'public/surat_izin'
+        $absensi->surat_izin = $fileName; // Simpan nama file ke dalam objek Absensi
+    }
+
+    $absensi->save();
+
+    return redirect()->route('user.leave')->with('success', 'Absensi berhasil disimpan.');
+}
+
+    
+
+    public function misspunch()
+    {
+    $now = now();
+    $month = $now->month;
+    $year = $now->year;
+
+    $absensis = Absensi::whereYear('tgl_presensi', $year)
+                        ->whereMonth('tgl_presensi', $month)
+                        ->where('user_id', auth()->user()->id)
+                        ->whereIn('status', ['Belum absen','misspunch approved','misspunch request','misspunch rejected'])
+                        ->orderBy('tgl_presensi', 'asc') // Urutkan dari yang paling lama
+                        ->get();
+        return view('user.misspunch',compact('absensis'));
+    }
+
+    public function updateStatus(Request $request)
+{
+    $misspunchRequests = $request->input('misspunch_requests', []);
+    $reasons = $request->input('reasons', []);
+    $jamMasuk = $request->input('jam_masuk', []);
+    $jamKeluar = $request->input('jam_keluar', []);
+
+    foreach ($misspunchRequests as $id) {
+        $absen = Absensi::find($id);
+        if ($absen) {
+            // Check if more than one day has passed and status is not already 'Misspunch request'
+            if ($absen->status !== 'Misspunch request' && now()->diffInDays($absen->tgl_presensi) >= 1) {
+                $absen->status = 'Misspunch request';
+                $absen->reason = $reasons[$id] ?? ''; // Update the reason
+                $absen->jam_masuk = $jamMasuk[$id] ?? $absen->jam_masuk; // Update jam masuk
+                $absen->jam_keluar = $jamKeluar[$id] ?? $absen->jam_keluar; // Update jam keluar
+                $absen->save();
+            }
+        }
+    }
+
+    return redirect()->back()->with('success', 'Status updated successfully.');
+}
 }

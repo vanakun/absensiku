@@ -57,9 +57,9 @@
             <th class="px-4 py-2 text-left">Status</th>
         </tr>
     </thead>
-    <tbody class="text-gray-600 dark:text-gray-300 text-xs font-light divide-y divide-gray-200"> <!-- Menggunakan text-xs untuk font kecil -->
+    <tbody class="text-gray-900 dark:text-gray-300 text-xs font-light divide-y divide-gray-200"> <!-- Menggunakan text-xs untuk font kecil -->
         @foreach($absensis as $absen)
-        <tr class="hover:bg-gray-300">
+        <tr class="hover:bg-black-200">
             <td class="px-4 py-2 whitespace-nowrap">{{ $absen->tgl_presensi }}</td> <!-- Mengurangi padding -->
             <td class="px-4 py-2">{{ $absen->lokasi_absen }}</td>
             <td class="px-4 py-2">{{ $absen->jam_masuk }}</td>
@@ -210,7 +210,7 @@
         var endTime = new Date();
 
         startTime.setHours(8, 45, 0); // Set start time to 08:45 AM
-        endTime.setHours(17, 0, 0); // Set end time to 05:00 PM
+        endTime.setHours(24, 0, 0); // Set end time to 05:00 PM
 
         if (!withinRadius) {
             event.preventDefault();
